@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# C++ executables
+*.out
+lec1
+
+# VS Code
+.vscode/
