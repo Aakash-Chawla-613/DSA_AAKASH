@@ -10,6 +10,7 @@
 #include <limits>
 #include <bitset>
 #include <algorithm> //for sorting we include
+#include <string>
 using namespace std;
 
 inline int calculateMultiply(int a, int b)
@@ -843,6 +844,340 @@ int maxArea(vector<int> &arr)
     return maxArea;
 }
 
+// Solving the book allocation problem
+
+bool isValid(vector<int> &arr, int stu, int maxMinPages)
+{
+    // to arrange student in continoues in that way..every student pages doesnt cross the maxMinPages numeber..if gonning, then increase student count..in end check if student..count equal to given count of student in question then return true otherwise false..
+
+    int st = 1, pages = 0;
+    for (int i = 0; i < arr.size(); i++)
+    {
+        if (arr[i] > maxMinPages)
+            return false;
+
+        if (pages + arr[i] <= maxMinPages)
+        {
+            pages += arr[i];
+        }
+        else
+        {
+            st++;
+            pages = arr[i];
+        }
+    }
+
+    return st <= stu;
+    // st from the greedy loop is the minimum number of groups needed to keep every pile ≤ maxMinPages. If st < stu, that doesn't mean the allocation is invalid — it means you can split the existing groups into more, smaller pieces to use up the remaining students, and this will never violate the maxMinPages limit.
+}
+
+int maxBookAllocation(vector<int> &arr, int stu)
+{
+    if (stu > (int)arr.size())
+        return -1;
+    int st = 0, end = 0, minValidPages = INT_MAX;
+    for (int i = 0; i < arr.size(); i++)
+    {
+        end += arr[i];
+    }
+
+    while (st <= end)
+    {
+        int mid = st + (end - st) / 2;
+        if (isValid(arr, stu, mid))
+        {
+            minValidPages = min(minValidPages, mid);
+            end = mid - 1; // left side if true
+        }
+        else
+        {
+            st = mid + 1;
+        }
+    }
+    return minValidPages;
+}
+
+// Painter's parition problem
+
+bool isValid1(vector<int> &arr, int minTime, int actaulN)
+{
+    int n = 1, time = 0;
+    for (int i = 0; i < arr.size(); i++)
+    {
+        if (arr[i] > minTime)
+            return false;
+        if (arr[i] + time <= minTime)
+        {
+            time += arr[i];
+        }
+        else
+        {
+            n++;
+            time = arr[i];
+        }
+    }
+    return (n <= actaulN);
+}
+
+int painterParition(vector<int> &arr, int pntr)
+{
+    if (pntr > (int)arr.size())
+        return -1;
+
+    int st = 0, sum = 0, minTime = INT_MAX;
+    for (int i = 0; i < arr.size(); i++)
+    {
+        sum += arr[i];
+    }
+    while (st <= sum)
+    {
+        int mid = st + (sum - st) / 2;
+        if (isValid1(arr, mid, pntr))
+        {
+            minTime = min(minTime, mid);
+            sum = mid - 1; // left
+        }
+        else
+        {
+            st = mid + 1; // right if invalid
+        }
+    }
+    return minTime;
+}
+
+// Agressive cows problem
+// Assign C cows to N stalls such that min distance between them is largest possible.return largest minimum distance..
+
+bool isPalindromeString(string &s)
+{
+    string rs = s;
+    reverse(rs.begin(), rs.end());
+    return s == rs;
+}
+
+// WAF to check a valid palindrome
+
+bool isValid(char c)
+{
+    if ('A' <= c && c <= 'Z' || 'a' <= c && c <= 'z' || '0' <= c && c <= '9')
+        return true;
+    else
+        return false;
+}
+
+bool isValidPalindrome(string s)
+{
+    // handling the edge case
+    if (s.empty())
+        return true;
+    int st = 0, end = s.size() - 1;
+    while (st < end)
+    {
+        if (!isValid(s[st]))
+        {
+            st++;
+        }
+        else if (!isValid(s[end]))
+        {
+            end--;
+        }
+        else
+        {
+            if (tolower(s[st]) != tolower(s[end]))
+                return false;
+            st++, end--;
+        }
+    }
+    return true;
+}
+
+// Remove All Occurrences of a Substring
+
+// Given two strings s and part, perform the following operation on s until all occurrences of the substring part are removed:
+
+// Find the leftmost occurrence of the substring part and remove it from s.
+// Return s after removing all occurrences of part.
+
+string removeOccurrences(string s, string part)
+{
+    while (s.find(part) != string::npos)
+    {
+        s = s.erase(s.find(part), part.size());
+    }
+    return s;
+}
+
+// Permutation in string problem
+
+bool checkInslusion(string s1, string s2)
+{
+    vector<int> freq(26, 0);
+    for (int i = 0; i < s1.size(); i++)
+    {
+        freq[s1[i] - 'a']++;
+    }
+
+    int windowSize = s1.length();
+
+    for (int i = 0; i < s2.length(); i++)
+    {
+        vector<int> freq1(26, 0);
+        int windowIdx = 0, idx = i;
+
+        while (windowIdx < windowSize && idx < s2.length())
+        {
+            freq1[s2[idx] - 'a']++;
+            idx++, windowIdx++;
+        }
+        if (freq == freq1)
+            return true;
+    }
+    return false;
+}
+
+// also with other method doing the same
+
+bool checkInslusion1(string s1, string s2)
+{
+    if (s1.size() > s2.size())
+        return false;
+
+    vector<int> freq1(26, 0), freq2(26, 0);
+
+    for (int i = 0; i < s1.size(); i++)
+    {
+        freq1[s1[i] - 'a']++;
+        freq2[s2[i] - 'a']++;
+    }
+
+    if (freq1 == freq2)
+        return true;
+
+    for (int i = s1.size(); i < s2.size(); i++)
+    {
+        freq2[s2[i] - 'a']++;
+        freq2[s2[i - s1.size()] - 'a']--;
+
+        if (freq1 == freq2)
+            return true;
+    }
+    return false;
+}
+
+// solving the problem in the basis of mergeSort..using the backtracking and recursion...this is using the O(nlogn)
+
+void merge(vector<int> &arr, int st, int mid, int end)
+{
+    vector<int> temp;
+    int j = mid + 1, i = st;
+
+    while (i <= mid && j <= end)
+    {
+        if (arr[i] <= arr[j])
+        {
+            temp.push_back(arr[i]);
+            i++;
+        }
+        else
+        {
+            temp.push_back(arr[j]);
+            j++;
+        }
+    }
+
+    while (i <= mid)
+    {
+        temp.push_back(arr[i]);
+        i++;
+    }
+    while (j <= end)
+    {
+        temp.push_back(arr[j]);
+        j++;
+    }
+
+    for (int idx = 0; idx < temp.size(); idx++)
+    {
+        arr[st + idx] = temp[idx];
+    }
+}
+
+void mergeSort(vector<int> &arr, int st, int end)
+{
+
+    if (st < end)
+    {
+        int mid = st + (end - st) / 2;
+        mergeSort(arr, st, mid);      // left side
+        mergeSort(arr, mid + 1, end); // right side
+        merge(arr, st, mid, end);     // sorted array and merge
+    }
+}
+
+// Sorting 0s,1s,2s
+void sortColor(vector<int> &arr)
+{
+    // brute force approach
+    sort(arr.begin(), arr.end());
+}
+
+// this is optimized with the O(n) with passes the array twice..
+void sortColor1(vector<int> &arr)
+{
+    int count0 = 0, count1 = 0, count2 = 0;
+    for (int val : arr)
+    {
+        if (val == 0)
+            count0++;
+        else if (val == 1)
+            count1++;
+        else
+            count2++;
+    }
+
+    for (int i = 0; i < arr.size(); i++)
+    {
+        if (0 < count0)
+        {
+            arr[i] = 0;
+            count0--;
+        }
+        else if (0 < count1)
+        {
+            arr[i] = 1;
+            count1--;
+        }
+        else
+        {
+            arr[i] = 2;
+        }
+    }
+}
+
+// so the optimal approach is O(n) with single passes the array..
+void sortColor2(vector<int> &arr)
+{
+    int low = 0, mid = 0, high = arr.size() - 1;
+
+    while (mid <= high)
+    {
+        if (arr[mid] == 0)
+        {
+            swap(arr[mid], arr[low]);
+            low++, mid++;
+        }
+        else if (arr[mid] == 1)
+        {
+            mid++;
+        }
+        else
+        {
+            swap(arr[mid], arr[high]);
+            high--;
+        }
+    }
+}
+
 int main()
 {
     cout << "Hello World!" << endl;
@@ -1043,7 +1378,7 @@ int main()
     // keyboard buffer is "Hello world c++"
     // cin>> word onlt takes "hello" only cause cin stops at white space..and other remain in keyboard buffer "world c++"
 
-    // and how getline work..those in kwyboard buffer..read evrything until(\n-> enter)
+    // and how getline work..those in keyboard buffer..read evrything until(\n-> enter)
 
     // lets take a example
 
@@ -3914,6 +4249,492 @@ int main()
     // Allotment should be in contigoues order..
 
     // Calculate and return that mimimum possible number and return -1 if a valid assignment is not possible..
+
+    vector<int> maxMinPages = {5, 17, 100, 11};
+    int student = 4;
+
+    cout << "Minimum of max pages allowed to a student: " << maxBookAllocation(maxMinPages, student) << endl;
+
+    // Painter's parition problem
+    // Given are N boards of length of each given in the form of array..and M painter,such that each panter takes 1 unit of time to 1 unit of the board..
+    // The task is to find the minimum time to paint all the boards under the constranits that array will only paint continoues of board..
+
+    vector<int> maxMinPaint = {5, 17, 100, 11};
+    ;
+    int pntr = 4;
+
+    cout << "Minimum of max time takeby a painters: " << painterParition(maxMinPaint, pntr) << endl;
+
+    // Agressive cows problem
+    // Assign C cows to N stalls such that min distance between them is largest possible.return largest minimum distance
+
+    // What is string?
+
+    // String is a class in c++ standered library(<string> header file) that manages a dynamically-sized sequence of character..Unlike c- style string(char arr[]),it handles memory management automatically..
+
+    // for that including the #include<string> header file..
+
+    // declare and initialization..
+    // string s1 = "hello";
+    // string s2("world");
+    // string s3(5, 'x'); //"xxxxx"-5 copies of 'x'
+    // string s4 = s1 + " " + s2;
+
+    // Core operations
+
+    // Access
+    string s1 = "Hey buddy!!, Akash this side..";
+    cout << s1[0] << endl;      // give us 'H'
+    cout << s1.at(0) << endl;   // gives us 'b'
+    cout << s1.size() << endl;  // gives us length od string
+    cout << s1.front() << endl; // first element of string
+    cout << s1.back() << endl;  // gives us index el of string
+    cout << s1.empty() << endl; // check is empty or not string?
+
+    // Modifications
+    s1.push_back('!');          // at the end add '!' and only single char..
+    s1.pop_back();              // remove single el from back..only single char
+    s1.append(" ,How're you?"); // add string at the end..
+    s1 += "?";                  // doing same append with concatenation method
+
+    // s1.insert(idx," all good?")//insert something after that index..
+
+    // s1.erase(startingIdx, no_of_terms) // if you wanna erase the word or el from string..
+
+    // s1.replace(starting, noofstring, "check") // replace from index to count..with some specific word..
+
+    // s1.clear();//empty whole strng
+
+    // Substring and searching
+
+    // s1.substr(6) // from index 6 to end
+    // s1.sunstr(0,5)//from 0 to 5 index..
+
+    // s1.find("world")//index where we found
+    // s1.find("xyz")//string::npos if not found
+    // s1.rfind("o")//finding from last occurrence
+    // s1.find_first_of("aeiou")//index of first vowel//
+
+    // critical gotcha:  string::npos is special type of constant(usally -1 or huge unsigned number)
+
+    // what is C-string vs string?
+
+    // Character Arrays(also know as cstring)
+    //  char str[]={'a','b','c','\0'}..also \0 is null character also same 1bytes to store in memory, also \n-next line also take 1bytes to store in memory..
+
+    char str[] = {'a', 'a', 'k', 'a', 's', 'h', '\0'};
+    cout << "cString: " << str << endl;
+
+    // always using null character in the cstring..
+
+    // also assign
+
+    char str1[] = "hello babyy";
+    cout << str1 << endl;
+
+    // Character Arrays as input and output..
+    // character array is type of array and string is type of vector..dynamic in nature and cstring is static in nature...
+
+    // getline in cstring
+    // char nameString[15];
+    // cout << "could you pls tell me your name: ";
+    // cin.getline(nameString, 15);
+    // cout << "Ohh hey!!, " << nameString << endl;
+
+    // how many element in nameString.
+    // cout << "count char in cstring: " << strlen(nameString) << endl;
+
+    // strlen(nameofstring): its count only the char in string except \0 in the last
+
+    // also with loop check the same..
+    // int lenStr = 0;
+    // for (int i = 0; nameString[i] != '\0'; i++)
+    // {
+    //     lenStr++;
+    //} // calculate the len of cstring using loop..until \0..
+    // cout << "len of nameString with loop: " << lenStr << endl;
+
+    // cin.getline(str_name,len)--this assign length to string for char(except \0) is len-1..
+
+    // treverse the whole loop:for each and iterations
+
+    // for (int i = 0; nameString[i] != '\0'; i++)
+    // {
+    //     cout << nameString[i] << " ";
+    // } // using iterations
+    // cout << endl;
+
+    // for each loop
+    // char nameString1[15] = "Aakash Chawla";
+    // for (char ch : nameString1)
+    // {
+    //     cout << ch << " ";
+    //} // treverse whole array..15 string()
+
+    // cout << endl;
+
+    // cout << nameString1[12] << endl;
+
+    // char nameString2[100] = "3ihiu3g";
+    // for (int i = 0; i < 100; i++)
+    // {
+    //     cout << nameString2[i] << " ";
+    //}
+
+    // empty index store white space only..to fillup whole array..until null char..
+
+    // What is stored in those remaining bytes?
+    // It depends on how the array was created.
+
+    // we we just declare the cstring then put something in this..or strcpy(str,"helloworld")-then other remaning byte have garbage values..
+
+    // if we initialized with string literals..then all remaining becomes '\0'
+
+    // if initialization with zero values..
+    // char str[10]={};
+    // or char str[10]={0}; both every. byte is zero..
+
+    // why is \0 important?
+    //  C string dont store their length instead strlen(str)..it keeps reading until it finds..'\0'
+
+    // example: H e l l o \0 X Y Z
+    // then return only 5, it ignore everything after the first '\0'
+
+    // if we declaration only cstring and then getline some word..than getline overwrite the el..and remaining the garbage values..
+
+    // char strCheck[50];
+    // cout << "enter anythings: ";
+    // cin.getline(strCheck, 50);
+    // for (char val : strCheck)
+    // {
+    //     cout << val << " ";
+    // }
+    // cout << endl; // they have garbage char..
+
+    // string is dynamical in nature..just like vector..nd cstring and array  both are static in nature..
+
+    // cstring is constant varible..
+
+    // nameString1="hello world!"//erroe variable must be modificated lvalue..
+
+    // its increase size or decrese fix..cause word done in compile time..string is advanced version of cstring..a type of class we included from <string> header file...
+
+    // also contigeous in nature..also using the comparison operators...
+
+    string firststr = "hello dear!!";
+    cout << firststr << endl;
+
+    // also access through index value..
+
+    // access the element
+    cout << firststr[0] << endl;       // 0th index value
+    cout << firststr.at(1) << endl;    // 1st index value
+    cout << firststr.front() << endl;  // first value of string(0th index value)
+    cout << firststr.back() << endl;   // last value of string
+    cout << firststr.empty() << endl;  // check is string empty or not?
+    cout << firststr.size() << endl;   // give us size of string
+    cout << firststr.length() << endl; // same give size of string
+
+    // size and length both are equal, in cstring strlen used for calculate the length of string..
+    // evry function in string work until hit \0 in string..eg "hello\0 what'sup?" size and length both are 5 hello only..same for back..every funtion
+
+    // modifications
+
+    firststr.push_back('!'); // only single char in the last
+    cout << firststr << endl;
+    firststr.pop_back(); // remove single char from last
+    cout << firststr << endl;
+    firststr.append(", sup?"); // add string in the end..add+end
+    cout << firststr << endl;
+    firststr.insert(5, " aakash"); // insert some string with specifies index..
+    cout << firststr << endl;
+    firststr.replace(0, 5, "Helloo"); // replace some 0 to nth index value to something else..if some extra value we assign then all shifted one step right..
+    cout << firststr << endl;
+    firststr.erase(0, 1); // remove from 0th index to 1 element ahead..means remoce 'H'
+    cout << firststr << endl;
+    firststr += " chale??"; // add something in string with the help of concatenation..
+    cout << firststr << endl;
+    // firststr.clear(); // clear whole string
+    // cout << firststr << endl;
+
+    // substring and searching??
+    cout << firststr.substr(6) << endl;    // from 6th index to end of string
+    cout << firststr.substr(0, 5) << endl; // give substring from index 0 + 5 count
+    cout << firststr.find("xyz") << endl;  // if not found just give us garbage value..
+    cout << firststr.find("e") << endl;    // 0    // give the first occurence index..
+    cout << firststr.rfind("e") << endl;   // 30  // give us the last occurence index..
+    cout << endl;
+    cout << firststr.find_first_of("aeiou") << endl;     // 0 return the vowels from begining
+    cout << firststr.find_first_not_of("aeiou") << endl; // 1 find not vowels from begining
+    cout << firststr.find_last_of("aeiou") << endl;      // 30 return first vowels or any char from last..
+    cout << firststr.find_last_not_of("aeiou") << endl;  // 32
+
+    // also very important topic, thats string::npos is spceial type of constant(usally -1 cast to size_t ie huge unsigned number)..Always compare with string::npos, never assume -1;
+
+    // if(s.find("xyx")!=string::npos){
+    // found the answer.
+    //}
+
+    // comparison also allowed in string
+
+    string s2 = "abcd";
+    string s3 = "kash";
+
+    cout << "Is s2 lexicographic comes first? compare to s3: " << (s2 < s3) << endl;
+
+    cout << "Is both equal: " << (s2 == s3) << endl;
+
+    cout << "Is both not equal: " << (s2 != s3) << endl;
+
+    cout << "Is s3 lexicographic comes first? compare to s2: " << s3.compare(s2) << endl; // 10 mean +ve number..any +ve number...
+
+    // s1.compare to s2 means..tells that if both are equal tell 0, if s1<s2 gives us -ve no..or if s1>s2 gives any -ve umber
+
+    // string to number conversion and vice-versa also..
+
+    // string to number
+    int strInt = stoi("123");
+    long strLong = stol("7942370940943");
+    double strDouble = stod("3.14");
+
+    // number to string
+    string numSt = to_string(2345);
+    string num1St = to_string(3.12343);
+
+    // Interview gotcha: stoi throw invalid_argument or out_of_range expection on bad input-always wrap in try catch if input isnt guranteed clean,or validate manually first..
+
+    // for exceptions handling..used try and catch manually first..
+    try
+    {
+        int numStr = stoi("abcde");
+    }
+    catch (const invalid_argument &e)
+    {
+        cout << "their error: " << e.what() << endl;
+    }
+    // try-catch method use to preverse our code to crash, and in this const and & is used to not modifies e and just reference not coping error..as e in memory
+
+    // iteraing over string
+
+    string fullname = "Aakash-chawla";
+
+    // index-based
+    for (int i = 0; i < fullname.size(); i++)
+        cout << fullname[i];
+    cout << endl;
+
+    // range based(read only or modify by reference)
+
+    for (char c : fullname)
+        cout << c;
+    cout << endl;
+
+    for (char &c : fullname)
+        c = toupper(c); // modifies original once..
+    cout << endl;
+    // iterators
+    for (auto it = fullname.begin(); it != fullname.end(); it++)
+    {
+        cout << *it;
+    }
+
+    // reverse iteration
+    cout << endl;
+    for (auto it = fullname.rbegin(); it != fullname.rend(); it++)
+    {
+        cout << *it;
+    }
+
+    // do a question to reverse a string
+    // we doing this by
+    cout << endl;
+    for (auto it = fullname.rbegin(); it != fullname.rend(); it++)
+        cout << *it;
+    cout << endl; // just for output...not actual
+
+    // also by STL-reverse funtion
+    reverse(fullname.begin(), fullname.end());
+    cout << fullname << endl;
+    // actual in memory reverse the whole string...
+
+    // write a function that is a string a palindrome or not?
+
+    string testPalindrome = "racara";
+    cout << "Is palindrome or not: " << isPalindromeString(testPalindrome) << endl;
+
+    // WAF to find valid palindrome string..
+
+    // A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.
+
+    // Given a string s, return true if it is a palindrome, or false otherwise.
+
+    cout << "Is this a valid palindrome: " << isValidPalindrome("A man, a plan, a canal: Panama") << endl;
+
+    cout << "Is this a valid palindrome: " << isValidPalindrome("race a car") << endl;
+
+    cout << "Is this a valid palindrome: " << isValidPalindrome(" ") << endl;
+
+    cout << "Is this a valid palindrome: " << isValidPalindrome("") << endl;
+
+    cout << "Is this a valid palindrome: " << isValidPalindrome("0P") << endl;
+
+    cout << "Is this a valid palindrome: " << isValidPalindrome("ab_a") << endl;
+
+    // doing the same with isalnum and unsigned char..
+
+    // remove all occurance of a substring
+
+    cout << "after removal of all occurance: " << removeOccurrences("daabcbaabcbc", "abc") << endl;
+
+    // solving the permuatation problem of string
+
+    // Given two strings s1 and s2, return true if s2 contains a permutation of s1, or false otherwise.
+
+    // In other words, return true if one of s1's permutations is the substring of s2.
+
+    string perStr = "ab", perStr1 = "eidbaooo";
+
+    cout << "first string any permutation in second string: "
+         << checkInslusion(perStr, perStr1) << endl;
+
+    // also with the optimization approach of doing this..
+    cout << "first string any permutation in second string using optimizated way: "
+         << checkInslusion1(perStr, perStr1) << endl;
+
+    // time complexity of this is O(s2.size()) and space complexity is O(1) just array of 26 letters..
+
+    vector<int> forSort = {2, 13, 2, 122, 67, 23, 99, 3, 0};
+    mergeSort(forSort, 0, 8);
+    for (int val : forSort)
+    {
+        cout << val << " ";
+    }
+    cout << endl;
+
+    vector<int> forSort1 = {38, 27, 43, 3, 9, 82, 10};
+    mergeSort(forSort1, 0, forSort.size() - 1);
+    for (int val : forSort1)
+        cout << val << " ";
+    cout << endl;
+
+    /*
+    Merge sort is the recursiona and backtracking based algorithm using for sorting the data..with the optimal TC is O(nlogn)..
+
+    This is based on divide and conquer concept..
+
+    continously dividing the array until the array el represent itself as single..means when st=end=i...thats why we while loop of st<end..when its equal break the loop...
+
+    ..with the recursion we calling the calculating the mid and call for two parts left(mergeSort(arr,int,mid)) and right(mergeSort(arr,mid+1,end))
+
+    and at the end..in backtracking..we call right side and after that we call merge function that..merge two array in sorted order..and pass to arr to previous call..
+
+    how merge part to create a sorted array..
+
+    we pass arr, with st,mid and end index..
+
+    //our loop fucntion..arrange the value in sorted way and store in tempory array..and At the end we store value in &arr with the help of relation arr[idx+st]=temp[idx]..
+
+    so their are total three loop
+    1) where we compare the value of first and second array..with we created new temp array and store the sorted value..and also temp element i=st and j=mid+1.., condition of loop is st<=mid and j<=end
+
+    2) and 3) above loop sorted and store one loop..completely and other one sorted but not store in temp..so while(i<=mid)..store all value and same for other..while(j<=end)..store all value in temp..
+
+    4) At the end..store temp values in original reference array..with the relation arr[st+idx]=temp[idx]..idx strat from 0 to size of temol array..
+
+
+    //here's the code of the merge sort
+
+    //In end paramerter..store the actual last index-arr.size()-1
+    void merge(vector<int> & arr, int st, int mid, int end)
+    {
+        vector<int> temp;
+        int i = st, j = mid + 1;
+
+        while (i <= mid && j <= end)
+        {
+            if (arr[i] <= arr[j])
+            {
+                temp.push_back(arr[i]);
+                i++;
+            }
+            else
+            {
+                temp.push_back(arr[j]);
+                j++;
+            }
+        }
+
+        while (i <= mid)
+        {
+            temp.push_back(arr[i]);
+            i++;
+        }
+
+        while (j <= end)
+        {
+            temp.push_back(arr[j]);
+            j++;
+        }
+
+        for (int idx = 0; idx < temp.size(); idx++)
+        {
+            arr[idx + st] = temp[idx];
+        }
+    }
+
+    void mergeSort(vector<int> & arr, int st, int end)
+    {
+        if (st < end)
+        {
+            int mid = st + (end - st) / 2;
+            mergeSort(arr, st, mid)          // left side
+                mergeSort(arr, mid + 1, end) // right side
+                merge(arr, st, mid, end)     // for sorting and merge the array
+        }
+    }
+    */
+
+    // sorting the 0s 1s 2s..doing this with bruteForce, optimized and optimal approach..
+
+    // leetcode:75
+    // Given an array nums with n objects colored red, white, or blue, sort them in - place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
+
+    // We will use the integers 0,1, and 2 to represent the color red, white, and blue, respectively.
+
+    // Example 1:
+
+    // Input: nums = [2,0,2,1,1,0]
+    // Output: [0,0,1,1,2,2]
+
+    vector<int> colorArr = {2, 1, 1, 0, 0, 0};
+    sortColor2(colorArr);
+
+    for (int val : colorArr)
+        cout << val << " ";
+
+    cout << endl;
+
+    // doing this with all three way: bruteforce, optimized and optimal approach..
+
+    // only things to remember that..we have made three pointer while using dutch national flag aggregation..
+    // 0s- 0 to low-1
+    // 1s-low to mid-1
+    // 2s high-size()-1
+
+    // DNF sort does it in a single pass, O(n) time, O(1) space — which is the optimal approach and exactly what interviewers are looking for on this problem.
+
+    // The Three-Pointer Technique
+
+    // The core idea: maintain three pointers that partition the array into four conceptual regions as you scan:
+
+    // [ 0s ... | 1s ... | unprocessed ... | 2s ... ]
+    //         low      mid            high
+    // low — boundary; everything before low is confirmed 0
+    // high — boundary; everything after high is confirmed 2
+    // mid — current element being examined; everything between low and mid is confirmed 1
+    // Elements between mid and high are still unprocessed
+
+    // Math in DSA..
 
     return 0;
 }
